@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ecréall, services et solutions en logiciels libres depuis 2005 : intranets, extranets et portails collaboratifs sur mesure (Python, Plone, Pyramid, React). Activité reprise par son fondateur au sein de Logikascium ; logiciels en cours de modernisation, Nova-Ideo déployable sur demande.">
+  <title>Ecréall – Services et solutions en logiciels libres, systèmes d'information collaboratifs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0/css/bootstrap.min.css">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Charte commune avec www.logikascium.com et www.multiscium.com : mêmes
+       polices, même papier, mêmes composants. L'accent est l'orange du
+       nouveau logo Ecréall ; la terre cuite de Logikascium reste en second
+       accent pour marquer la parenté entre les sites. */
+    :root {
+      --ink: #0d1117;
+      --ink-soft: #1c2531;
+      --paper: #f8f5ef;
+      --paper-2: #fffdf8;
+      --accent: #e8471a;
+      --accent-dark: #c2380f;
+      --accent-bright: #f64f1b;
+      --accent-2: #b8472d;
+      --accent-soft: #fde4d9;
+      --muted: #626b79;
+      --muted-2: #89919f;
+      --border: #e6dfd2;
+      --shadow: 0 24px 80px rgba(13, 17, 23, 0.10);
+      --shadow-soft: 0 16px 40px rgba(13, 17, 23, 0.07);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.7;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; }
+    .container { max-width: 1160px; }
+
+    .navbar {
+      background: rgba(248, 245, 239, 0.86) !important;
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(230, 223, 210, 0.78);
+      padding: 0.85rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .navbar-brand { display: inline-flex; align-items: center; }
+    .navbar-brand img { height: 42px; width: auto; display: block; }
+    .nav-link {
+      color: var(--muted) !important; font-size: 0.78rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.09em; transition: color .2s ease;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--accent) !important; }
+    .nav-link.nav-cta {
+      color: #fff !important; background: var(--accent); border-radius: 999px;
+      padding: .45rem 1rem !important;
+    }
+    .nav-link.nav-cta:hover { background: var(--accent-dark); }
+    .navbar-toggler { border: 1px solid var(--border); border-radius: 12px; }
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2813,17,23,.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    /* Fond ambiant : halos d'orange et de terre cuite sur le papier, sans photo. */
+    .ambient {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 82% 4%, rgba(246,79,27,0.13), transparent 30rem),
+        radial-gradient(circle at 4% 22%, rgba(184,71,45,0.08), transparent 26rem),
+        radial-gradient(circle at 70% 90%, rgba(246,79,27,0.07), transparent 28rem),
+        var(--paper);
+    }
+    body > *:not(.ambient) { position: relative; z-index: 1; }
+
+    section { padding: 6rem 0; }
+    section + section { border-top: 1px solid rgba(230,223,210,0.72); }
+
+    .hero { padding: 6.2rem 0 5.4rem; position: relative; overflow: hidden; }
+    .hero-grid {
+      display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 4rem; align-items: center;
+    }
+
+    .eyebrow, .section-label {
+      display: inline-flex; align-items: center; gap: .5rem; margin-bottom: 1rem;
+      color: var(--accent); font-size: .75rem; font-weight: 800;
+      letter-spacing: .12em; text-transform: uppercase;
+    }
+    .eyebrow::before, .section-label::before {
+      content: ''; width: 10px; height: 10px; border-radius: 999px;
+      background: var(--accent-bright); box-shadow: 0 0 0 6px rgba(246,79,27,.16);
+    }
+
+    h1, h2.section-title, .serif { font-family: 'DM Serif Display', Georgia, serif; letter-spacing: -0.035em; }
+    h1 { max-width: 820px; margin: 0 0 1.35rem; font-size: clamp(2.6rem, 6.3vw, 4.6rem); line-height: 1; }
+    h1 em { color: var(--accent); font-style: italic; }
+
+    .hero-sub { max-width: 680px; margin: 0 0 2rem; color: var(--muted); font-size: 1.12rem; line-height: 1.75; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: .85rem; margin-bottom: 2.25rem; }
+
+    .btn-primary-custom, .btn-outline-custom, .btn-white, .btn-white-outline {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: .5rem; min-height: 48px; padding: .82rem 1.35rem;
+      border-radius: 999px; font-size: .9rem; font-weight: 800; text-decoration: none;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .btn-primary-custom { background: var(--accent); color: #fff; box-shadow: 0 16px 34px rgba(232,71,26,.24); }
+    .btn-primary-custom:hover { transform: translateY(-2px); color:#fff; background: var(--accent-dark); }
+    .btn-outline-custom { color: var(--ink); background: rgba(255,255,255,.46); border: 1px solid var(--border); }
+    .btn-outline-custom:hover { transform: translateY(-2px); color: var(--accent); border-color: rgba(232,71,26,.38); background: #fff; }
+
+    .hero-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; max-width: 720px; }
+    .proof-item { padding: .95rem 1rem; background: rgba(255,255,255,.58); border: 1px solid rgba(230,223,210,.9); border-radius: 16px; }
+    .proof-item strong { display:block; font-size: 1rem; color: var(--ink); line-height: 1.2; }
+    .proof-item span { display:block; color: var(--muted); font-size: .78rem; line-height: 1.45; margin-top: .2rem; }
+
+    /* Frise chronologique, côté droit du bandeau : où en est Ecréall. */
+    .hero-card { position: relative; padding: 1.5rem 1.5rem 1.2rem; background: rgba(255,253,248,.8); border: 1px solid rgba(255,255,255,.7); border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+    .hero-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, rgba(246,79,27,.14), transparent 45%); pointer-events: none; }
+    .hero-card h3 { position: relative; font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; font-size: 1.45rem; margin: 0 0 1rem; }
+    .timeline { position: relative; list-style: none; margin: 0; padding: 0 0 0 1.6rem; border-left: 2px solid rgba(232,71,26,.25); }
+    .timeline li { position: relative; padding: 0 0 1.1rem; }
+    .timeline li:last-child { padding-bottom: .2rem; }
+    .timeline li::before { content: ''; position: absolute; left: -1.6rem; top: .45rem; width: 12px; height: 12px; margin-left: -7px; border-radius: 999px; background: var(--paper-2); border: 3px solid var(--accent); }
+    .timeline li.now::before { background: var(--accent); box-shadow: 0 0 0 5px rgba(246,79,27,.18); }
+    .timeline .year { display: block; color: var(--accent); font-size: .74rem; font-weight: 800; letter-spacing: .1em; }
+    .timeline strong { display: block; font-size: .95rem; line-height: 1.3; }
+    .timeline span { display: block; color: var(--muted); font-size: .8rem; line-height: 1.45; margin-top: .15rem; }
+
+    h2.section-title { font-size: clamp(2rem, 4.5vw, 3.25rem); line-height: 1.06; margin: 0 0 1rem; }
+    .section-intro { color: var(--muted); max-width: 780px; font-size: 1.06rem; margin-bottom: 0; }
+
+    .cards-3, .cards-4, .cards-2 { display: grid; gap: 1.25rem; margin-top: 3rem; }
+    .cards-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .cards-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .cards-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .card-m {
+      position: relative; background: rgba(255,253,248,.72); border: 1px solid rgba(230,223,210,.9);
+      border-radius: var(--radius-md); padding: 1.55rem; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
+    }
+    .card-m h3 { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.45rem; font-weight: 400; line-height: 1.1; margin-bottom: .5rem; }
+    .card-m h4 { font-size: 1rem; font-weight: 800; margin-bottom: .45rem; letter-spacing: -.02em; }
+    .card-m p { color: var(--muted); font-size: .9rem; margin: 0; line-height: 1.65; }
+    .card-m .level, .badge-m { display: inline-block; margin-bottom: .75rem; padding: .2rem .65rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); font-size: .74rem; font-weight: 800; }
+    .badge-m.ok { background: #dcebdf; color: #22522f; }
+    .badge-m.wip { background: #fff1c2; color: #7a5a00; }
+    .card-m .meta { display: block; margin-top: .9rem; color: var(--muted-2); font-size: .78rem; }
+
+    ul.check-list { list-style: none; padding: 0; margin: 1rem 0 0; }
+    ul.check-list li { position: relative; padding-left: 1.65rem; margin: .55rem 0; color: var(--muted); font-size: .92rem; }
+    ul.check-list li::before { content: '✓'; position: absolute; left: 0; top: .02rem; color: var(--accent); font-weight: 900; }
+
+    ol.steps { counter-reset: etape; list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 1rem; }
+    ol.steps li { counter-increment: etape; padding: 1.25rem 1.25rem 1.25rem; border-radius: var(--radius-md); background: rgba(255,253,248,.72); border: 1px solid rgba(230,223,210,.9); }
+    ol.steps li::before { content: counter(etape, decimal-leading-zero); display: block; font-family: 'DM Serif Display', Georgia, serif; font-size: 1.8rem; color: var(--accent); line-height: 1; margin-bottom: .5rem; }
+    ol.steps strong { display: block; font-size: .95rem; margin-bottom: .3rem; }
+    ol.steps span { color: var(--muted); font-size: .85rem; line-height: 1.5; }
+
+    .two-col { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 3rem; align-items: start; margin-top: 3rem; }
+    .two-col h4 { font-weight: 800; font-size: 1rem; margin-bottom: .5rem; }
+    .two-col p { color: var(--muted); font-size: .95rem; }
+
+    /* Encart sombre : la reprise */
+    .dark-panel {
+      margin-top: 3rem; padding: 2.2rem; border-radius: var(--radius-lg); color: #eef2f7;
+      background: radial-gradient(circle at 80% 0%, rgba(246,79,27,.32), transparent 30rem), linear-gradient(160deg, #0d1117, #121b26 58%, #0d1117);
+    }
+    .dark-panel h3 { font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; font-size: 1.7rem; line-height: 1.1; margin: 0 0 .8rem; color: #f4f7fb; }
+    .dark-panel p { color: #a8b1c0; margin: 0 0 .8rem; }
+    .dark-panel p:last-child { margin-bottom: 0; }
+    .dark-panel a { color: #ffb08a; }
+    .dark-panel strong { color: #f4f7fb; }
+    .dark-panel .row-tags { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.2rem; }
+    .dark-panel .tag { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); color: #ffd6c4; }
+
+    .tag-cloud { display:flex; flex-wrap:wrap; gap:.45rem; margin-top: 1rem; }
+    .tag { display: inline-flex; align-items: center; min-height: 30px; padding: .28rem .7rem; background: rgba(253,228,217,.78); border: 1px solid rgba(232,71,26,.16); color: var(--accent-dark); border-radius: 999px; font-size: .78rem; font-weight: 750; }
+
+    /* Références : ils nous ont fait confiance */
+    #references { background: var(--paper-2); }
+    .ref-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1.25rem; margin-top: 3rem; }
+    .ref { display: flex; flex-direction: column; padding: 1.55rem; border-radius: var(--radius-md); background: rgba(255,255,255,.75); border: 1px solid rgba(230,223,210,.9); }
+    .ref .client { color: var(--accent); font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .35rem; }
+    .ref h3 { font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; font-size: 1.4rem; line-height: 1.1; margin: 0 0 .5rem; }
+    .ref .period { color: var(--muted-2); font-size: .8rem; margin-bottom: .8rem; }
+    .ref p { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; line-height: 1.6; flex: 1; }
+    .ref .figures { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .5rem; margin-bottom: .9rem; }
+    .ref .figures div { padding: .55rem .6rem; border-radius: 12px; background: var(--paper); border: 1px solid rgba(230,223,210,.9); }
+    .ref .figures strong { display: block; font-size: 1rem; line-height: 1.1; letter-spacing: -.02em; }
+    .ref .figures span { display: block; color: var(--muted-2); font-size: .7rem; line-height: 1.3; margin-top: .15rem; }
+    .ref .stack { color: var(--muted-2); font-size: .78rem; }
+    .ref-more { margin-top: 1.5rem; color: var(--muted); font-size: .95rem; }
+
+    .cta-section { position: relative; overflow: hidden; background: linear-gradient(135deg, #f85d20, #d43a10); color: #fff; text-align: center; padding: 6.3rem 0; }
+    .cta-section::before, .cta-section::after { content:''; position:absolute; border-radius:999px; background:rgba(255,255,255,.14); filter: blur(2px); }
+    .cta-section::before { width: 360px; height: 360px; left:-140px; top:-120px; }
+    .cta-section::after { width: 260px; height: 260px; right:-100px; bottom:-120px; }
+    .cta-section .container { position:relative; z-index:1; }
+    .cta-section h2 { font-family:'DM Serif Display', Georgia, serif; font-size: clamp(2.1rem, 4.8vw, 4rem); line-height:1.02; margin-bottom:1rem; }
+    .cta-section p { max-width: 640px; margin: 0 auto 2rem; color: rgba(255,255,255,.88); font-size:1.08rem; }
+    .btn-white { background: #fff; color: var(--accent-dark); }
+    .btn-white:hover { color: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 18px 34px rgba(0,0,0,.14); }
+    .btn-white-outline { border: 1px solid rgba(255,255,255,.55); color:#fff; background:rgba(255,255,255,.08); }
+    .btn-white-outline:hover { color:#fff; border-color:#fff; transform:translateY(-2px); background:rgba(255,255,255,.15); }
+
+    .contact-footer { background:#080b10; color:#99a3b3; padding:3.2rem 0; font-size:.87rem; }
+    .contact-footer strong { color:#edf2f7; }
+    .contact-footer a { color:#ffb08a; text-decoration:none; }
+
+    @media (max-width: 991px) {
+      .hero-grid, .two-col { grid-template-columns: 1fr; }
+      .cards-3, .cards-4, .ref-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      ol.steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .hero { padding-top: 4.8rem; }
+    }
+    @media (max-width: 680px) {
+      section { padding: 4rem 0; }
+      .hero-proof, .cards-2, .cards-3, .cards-4, .ref-grid, ol.steps { grid-template-columns: 1fr; }
+      .dark-panel, .hero-card { padding: 1.3rem; }
+      .navbar-brand img { height: 34px; }
+      h1 { font-size: clamp(2.4rem, 12vw, 3.5rem); }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <nav class="navbar navbar-expand-lg" aria-label="Navigation principale">
+    <div class="container">
+      <a class="navbar-brand" href="#"><img src="images/ecreall-logo-fond-transparent.svg" alt="Ecréall – services et solutions en logiciels libres, systèmes d'information collaboratifs"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Ouvrir le menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav gap-lg-3 align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="#reprise">Reprise</a></li>
+          <li class="nav-item"><a class="nav-link" href="#metier">Métier</a></li>
+          <li class="nav-item"><a class="nav-link" href="#methode">Méthode</a></li>
+          <li class="nav-item"><a class="nav-link" href="#offre">Offre</a></li>
+          <li class="nav-item"><a class="nav-link" href="#logiciels">Logiciels</a></li>
+          <li class="nav-item"><a class="nav-link" href="#references">Références</a></li>
+          <li class="nav-item"><a class="nav-link" href="#communaute">Communauté</a></li>
+          <li class="nav-item ms-lg-2"><a class="nav-link nav-cta" href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow">Logiciels libres depuis 2005 · Activité reprise par son fondateur</p>
+            <h1>Des systèmes d'information collaboratifs, <em>libres</em> et faits sur mesure.</h1>
+            <p class="hero-sub">Ecréall conçoit, développe et intègre des intranets, extranets et portails collaboratifs full web, souples, évolutifs, adaptés aux processus métiers de chacun de ses clients. Fondée en 2005 à Villeneuve d'Ascq et liquidée en 2023, la société revit aujourd'hui sous la forme d'une marque et d'un catalogue de logiciels portés par son fondateur, Michaël Launay, au sein de <a href="https://www.logikascium.com">Logikascium</a>.</p>
+            <div class="hero-actions">
+              <a href="#contact" class="btn-primary-custom">Demander une démonstration</a>
+              <a href="#logiciels" class="btn-outline-custom">Voir les logiciels</a>
+            </div>
+            <div class="hero-proof">
+              <div class="proof-item"><strong>Expert Plone</strong><span>contributeur de la communauté depuis 2005, membre de la Fondation Plone</span></div>
+              <div class="proof-item"><strong>Éditeur de Nova-Ideo</strong><span>plateforme libre de management des idées, entièrement modernisée</span></div>
+              <div class="proof-item"><strong>100 % libre</strong><span>Python, Plone, Pyramid, React, GNU/Linux ; licences GPL et CeCILL</span></div>
+            </div>
+          </div>
+          <aside class="hero-card">
+            <h3>Où en est Ecréall&nbsp;?</h3>
+            <ol class="timeline">
+              <li><span class="year">2005</span><strong>Création à Villeneuve d'Ascq</strong><span>SARL de services et solutions en logiciels libres, spécialiste Zope/Plone.</span></li>
+              <li><span class="year">2009</span><strong>Recherche &amp; développement avec l'INRIA</strong><span>Thèse CIFRE, métamodèle MACOP, génération de portails collaboratifs.</span></li>
+              <li><span class="year">2023</span><strong>Liquidation de la société</strong><span>Fin de la SARL Ecréall après dix-huit ans d'activité.</span></li>
+              <li><span class="year">2024</span><strong>Reprise par le fondateur</strong><span>Logikascium rachète la marque et la propriété intellectuelle des logiciels.</span></li>
+              <li class="now"><span class="year">2026</span><strong>Modernisation et réouverture</strong><span>Réécriture des logiciels historiques&nbsp;; Nova-Ideo est déjà déployable sur demande.</span></li>
+            </ol>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="reprise">
+      <div class="container">
+        <p class="section-label">La reprise</p>
+        <h2 class="section-title">Une continuité de service, assumée par celui qui a tout construit.</h2>
+        <p class="section-intro">La SARL Ecréall a cessé son activité en 2023. Son fondateur et gérant, Michaël Launay, a racheté en 2024 la marque et la propriété intellectuelle de l'ensemble des logiciels par l'intermédiaire de sa société Logikascium. Les clients historiques et les nouveaux venus retrouvent ainsi le même interlocuteur, les mêmes technologies et les mêmes engagements.</p>
+
+        <div class="dark-panel">
+          <h3>Ce que cela change, et ce que cela ne change pas</h3>
+          <p><strong>L'activité est reprise par le fondateur après liquidation.</strong> Ecréall n'est plus une SARL mais une marque et un catalogue portés par l'EURL Logikascium, société de conseil en architecture logicielle et en gestion documentaire augmentée par l'IA. Les devis, contrats et factures sont établis par Logikascium.</p>
+          <p><strong>Tous les logiciels développés à l'époque sont en cours de modernisation et de réécriture.</strong> Ils seront tous, sous peu, en accès libre pour être testés et déployés. Nova-Ideo, la plateforme de management des idées, a déjà été entièrement modernisée et se déploie sur demande. Les autres briques suivent, dans l'ordre des besoins exprimés.</p>
+          <p><strong>Les principes restent les mêmes.</strong> Logiciels libres, méthodes agiles, modélisation des processus métiers, hébergement chez vous ou chez l'hébergeur de votre choix, et formation des équipes pour qu'elles soient autonomes.</p>
+          <div class="row-tags">
+            <span class="tag">Marque et PI reprises en 2024</span>
+            <span class="tag">Même fondateur, même équipe technique de référence</span>
+            <span class="tag">Facturation par Logikascium EURL</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="metier">
+      <div class="container">
+        <p class="section-label">Un objectif, un métier, une philosophie</p>
+        <h2 class="section-title">Décharger vos collaborateurs des tâches sans valeur ajoutée.</h2>
+        <p class="section-intro">Les entreprises ont besoin d'outils qui déchargent leurs collaborateurs des tâches redondantes et qui les aident dans l'accomplissement de leurs missions. Les intranets, extranets et portails collaboratifs accélèrent et sécurisent les échanges d'information dès qu'elle est dématérialisée ou dématérialisable. Nos portails permettent à plusieurs collaborateurs de travailler ensemble sur des lieux différents, à n'importe quel moment, en toute sécurité et selon les processus métiers de l'entreprise.</p>
+
+        <div class="cards-3">
+          <div class="card-m">
+            <h3>Un métier</h3>
+            <p>Solutions et services en logiciels libres pour les intranets, extranets et portails collaboratifs&nbsp;: analyse des besoins, conception, développement, intégration, maintenance et formation. Spécialistes GNU/Linux, Python, Zope, Plone, Pyramid et React.</p>
+          </div>
+          <div class="card-m">
+            <h3>Une philosophie</h3>
+            <p>Les logiciels que nous utilisons et ceux que nous produisons sont libres. Nos clients sont libres d'analyser leur code source, de le modifier, de l'exécuter sans frais de licence et de le distribuer. Plone et GNU/Linux sont gérés par des fondations dont nous sommes membres&nbsp;: aucun éditeur unique n'impose sa volonté.</p>
+          </div>
+          <div class="card-m">
+            <h3>Une architecture de l'information</h3>
+            <p>Depuis 2005, un savoir-faire dans l'architecture de l'information pour des systèmes multi-canaux et transcanaux&nbsp;: rendre explorable et appropriable, cohérent, souple et robuste, simple, et coordonner les informations pour favoriser les trouvailles.</p>
+          </div>
+        </div>
+
+        <div class="tag-cloud">
+          <span class="tag">GNU/Linux</span><span class="tag">Python</span><span class="tag">Zope</span><span class="tag">Plone</span>
+          <span class="tag">Pyramid / Substance D</span><span class="tag">React / React Native</span><span class="tag">Docker</span>
+          <span class="tag">UML / BPMN</span><span class="tag">MDA</span><span class="tag">GraphQL</span><span class="tag">SQLAlchemy</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="methode">
+      <div class="container">
+        <p class="section-label">Une méthode</p>
+        <h2 class="section-title">Découvrir le métier, le modéliser, générer le portail.</h2>
+        <p class="section-intro">Pour adapter nos portails collaboratifs, nous analysons les processus métiers du client et les modélisons dans un outil dédié, puis nous générons les composants qui adaptent le gestionnaire de contenu à son métier. Comme les plans d'une maison, le modèle donne un aperçu du métier et détermine l'architecture de la solution&nbsp;; à la différence d'une maison, on peut modifier les plans alors que l'application fonctionne déjà.</p>
+
+        <ol class="steps">
+          <li><strong>Découvrir</strong><span>les processus métiers du client&nbsp;: documents produits, acteurs, changements d'état, flux, plan documentaire.</span></li>
+          <li><strong>Modéliser</strong><span>son métier avec des diagrammes de classes, d'états-transitions et d'activités (UML, BPMN).</span></li>
+          <li><strong>Générer</strong><span>un portail collaboratif qui automatise et sécurise les processus modélisés.</span></li>
+          <li><strong>Intégrer</strong><span>ce portail au système d'information existant, chez le client, en centre de données ou dans le cloud.</span></li>
+          <li><strong>Maintenir</strong><span>et faire évoluer, par itérations courtes, en suivant l'évolution de l'organisation.</span></li>
+        </ol>
+
+        <div class="two-col">
+          <div>
+            <h4>Développement par les modèles (MDA)</h4>
+            <p>Un portail est réalisé presque sans écrire une seule ligne de code. Selon l'approche MDA de l'OMG, un métamodèle définit ce qu'il est possible d'exprimer, et des règles de transformation produisent le code à partir du modèle. Depuis 2009 et les travaux de recherche menés avec l'INRIA, Ecréall modélise les processus métiers à partir d'un métamodèle nommé MACOP, fusion du BPM et d'UML, et génère les portails avec la chaîne d'outils libre OMEGSI.</p>
+          </div>
+          <div>
+            <h4>Une solution progressive</h4>
+            <p>Dans un premier temps, seuls sont informatisés les processus qui apportent un gain immédiat. À la fin de chaque itération, le client dispose simultanément d'un modèle de ses procédures de plus en plus complet et d'une nouvelle version du portail qui automatise un peu plus ses procédures. Les droits d'accès et la validation des documents respectent la confidentialité et la hiérarchie de l'entreprise&nbsp;; l'accès depuis Internet est chiffré.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="offre">
+      <div class="container">
+        <p class="section-label">Notre offre</p>
+        <h2 class="section-title">Des contrats agiles, facturés à l'itération.</h2>
+        <p class="section-intro">Depuis 2009, Ecréall applique systématiquement les méthodes agiles. Les projets sont réalisés par itérations courtes de deux à trois semaines impliquant fortement le client&nbsp;; les fonctionnalités qui apportent le plus de valeur sont réalisées en premier, et le client peut arrêter le projet à la fin de chaque itération.</p>
+
+        <div class="cards-4">
+          <div class="card-m">
+            <span class="level">Forfait ou régie</span>
+            <h4>Développement et intégration</h4>
+            <p>Itérations courtes basées sur SCRUM, spécifications limitées à un périmètre précis, démonstration et recette utilisateur avant chaque mise en production. Un extranet projet avec tracker permet au client de suivre l'avancement en temps réel.</p>
+          </div>
+          <div class="card-m">
+            <span class="level">Abonnement</span>
+            <h4>Tierce maintenance applicative</h4>
+            <p>Au-delà de la garantie initiale, un contrat de TMA garantit que toute demande de résolution de panne, de correctif ou d'évolution ponctuelle est livrée dans de courts délais. Votre application reste vivante entre deux phases de développement.</p>
+          </div>
+          <div class="card-m">
+            <span class="level">Organisme formateur</span>
+            <h4>Formation</h4>
+            <p>Python, Zope, Plone, Linux, React&nbsp;: chaque développement peut s'accompagner d'une formation à la plateforme livrée, pour les utilisateurs, les administrateurs et les développeurs. Dans l'esprit du libre, nous formons nos clients à être autonomes.</p>
+          </div>
+          <div class="card-m">
+            <span class="level">Expertise</span>
+            <h4>Audits et accompagnement</h4>
+            <p>Audit de sécurité (résistance aux attaques, conformité du paramétrage), audit de qualité (pérennité du code, respect des standards), audit de performances (temps de réponse, tenue en charge), et accompagnement technique hors mode projet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="logiciels">
+      <div class="container">
+        <p class="section-label">Les logiciels</p>
+        <h2 class="section-title">Un catalogue historique, en cours de réécriture.</h2>
+        <p class="section-intro">L'ensemble des logiciels développés par Ecréall est en cours de modernisation&nbsp;: mise à jour des versions de Python, de Plone et de Pyramid, conteneurisation, réécriture des interfaces. Ils seront tous, sous peu, disponibles pour être testés et déployés. L'état d'avancement ci-dessous est mis à jour au fil des livraisons.</p>
+
+        <div class="cards-3">
+          <div class="card-m">
+            <span class="badge-m ok">Modernisé · déployable sur demande</span>
+            <h3>Nova-Ideo</h3>
+            <p>La fusion de la boîte à idées et du portail collaboratif. Nova-Ideo répond aux enjeux d'innovation participative, de démocratie participative et de co-création, avec des processus cycliques d'amélioration collaborative des idées, un tirage au sort des modérateurs et une interface responsive. Entièrement modernisé, il se déploie sur demande pour une évaluation ou une mise en production.</p>
+            <span class="meta">Pyramid / Substance D · React · sources sur <a href="https://github.com/ecreall/nova-ideo" rel="noopener">github.com/ecreall/nova-ideo</a></span>
+          </div>
+          <div class="card-m">
+            <span class="badge-m wip">En cours de modernisation</span>
+            <h3>LAgendaCommun</h3>
+            <p>Le service d'agenda culturel collaboratif en marque blanche, né de la refonte des portails Sortir&nbsp;: dépôt d'annonces par les animateurs culturels, validation éditoriale, publication web et papier, application mobile.</p>
+            <span class="meta">Pyramid / Substance D · React Native · génération PDF</span>
+          </div>
+          <div class="card-m">
+            <span class="badge-m wip">En cours de modernisation</span>
+            <h3>dace, pontus et daceui</h3>
+            <p>Le socle libre issu de cinq années de R&amp;D avec l'INRIA&nbsp;: moteur de processus métiers, bibliothèque de composants et interface, à partir desquels Nova-Ideo et LAgendaCommun sont construits.</p>
+            <span class="meta">Python · Pyramid · Substance D</span>
+          </div>
+          <div class="card-m">
+            <span class="badge-m wip">En cours de modernisation</span>
+            <h3>OMEGSI et le métamodèle MACOP</h3>
+            <p>La chaîne de modélisation des entreprises et de génération de portails collaboratifs&nbsp;: métamodèle UML « Profile », modeleur BPMN Papyrus, générateurs QVT/XMI vers le serveur d'applications et le moteur de workflow.</p>
+            <span class="meta">Eclipse Papyrus · Acceleo · EMF/Ecore · QVT</span>
+          </div>
+          <div class="card-m">
+            <span class="badge-m wip">Portage Plone 6 en cours</span>
+            <h3>Modules Plone</h3>
+            <p>collective.contact.*, collective.contentrules.comingsoon et .talesaction, collective.local.sendto et .userlisting, collective.portlet.customizablerecent, collective.wfcomment, ecreall.trashcan, Products.cooptation, Products.projectmanager (Gantt, PERT), Products.rendezvous, ainsi que collective.phantasy et collective.subtractiveworkflow, repris et maintenus par Ecréall.</p>
+            <span class="meta">Plone 4 → Plone 6 · Python 3</span>
+          </div>
+          <div class="card-m">
+            <span class="badge-m">Savoir-faire</span>
+            <h3>Migrations et mise en production</h3>
+            <p>Migrations entre versions de Plone (de la 2.1 à la 6), de Plone vers Pyramid, et depuis des technologies externes (plusieurs applications Lotus Notes migrées sur un intranet Plone avec reprise de 20&nbsp;Go de données). Mises en production rapides et parallèles avec Docker et Dokku.</p>
+            <span class="meta">Docker · Dokku · Plone · Pyramid</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="references">
+      <div class="container">
+        <p class="section-label">Ils nous ont fait confiance</p>
+        <h2 class="section-title">Dix-huit ans de portails collaboratifs en production.</h2>
+        <p class="section-intro">Des systèmes d'information collaboratifs que nous avons fait évoluer, version après version, pendant des années. Les chiffres sont ceux constatés au moment de la présentation de 2022.</p>
+
+        <div class="ref-grid">
+          <article class="ref">
+            <div class="client">ARDI Hauts-de-France (ex-NFID)</div>
+            <h3>Astride, système d'information collaboratif</h3>
+            <div class="period">Depuis janvier 2008 · de Plone 2.5 à Plone 4.3</div>
+            <div class="figures">
+              <div><strong>950+</strong><span>espaces de travail</span></div>
+              <div><strong>19 620</strong><span>documents échangés</span></div>
+              <div><strong>3 300</strong><span>utilisateurs inscrits</span></div>
+            </div>
+            <p>Pour l'ensemble des acteurs de l'innovation et du développement économique du Nord-Pas de Calais&nbsp;: espaces de travail, gestion documentaire, gestion de projets, bases mutualisées, recherche d'expertise, reporting, tableaux de bord et GRC.</p>
+            <div class="stack">Plone · MySQL · webservices · XML</div>
+          </article>
+
+          <article class="ref">
+            <div class="client">Groupe Bonduelle</div>
+            <h3>Calibook, gestion documentaire qualité</h3>
+            <div class="period">Depuis septembre 2010 · migration depuis Lotus Notes</div>
+            <div class="figures">
+              <div><strong>20 Go</strong><span>de données migrées</span></div>
+              <div><strong>12 000</strong><span>documents stockés</span></div>
+              <div><strong>1 800</strong><span>utilisateurs</span></div>
+            </div>
+            <p>La documentation qualité des services du groupe, migrée service par service depuis plusieurs applications Lotus Notes avec reprise complète des données. Certains processus de validation sont passés d'une semaine à moins d'une journée.</p>
+            <div class="stack">Plone · génération de PDF depuis des modèles Word avec OpenOffice</div>
+          </article>
+
+          <article class="ref">
+            <div class="client">Comité Régional de Tourisme Nord-Pas de Calais</div>
+            <h3>L'Atelier, plateforme collaborative</h3>
+            <div class="period">Depuis juin 2012</div>
+            <p>Une plateforme régionale d'échange d'information et de coopération entre les acteurs du tourisme&nbsp;: gestion électronique des documents, photothèque avec recherche à facettes, puis bases de données collaboratives des offres touristiques.</p>
+            <div class="stack">Plone · XML · SIG</div>
+          </article>
+
+          <article class="ref">
+            <div class="client">MESHS – Maison Européenne des Sciences de l'Homme et de la Société</div>
+            <h3>Plateforme de travail numérique</h3>
+            <div class="period">Depuis mars 2011 · de Plone 4.1 à Plone 4.3</div>
+            <div class="figures">
+              <div><strong>400</strong><span>chercheurs</span></div>
+              <div><strong>3</strong><span>langues</span></div>
+              <div><strong>2 100</strong><span>fichiers partagés</span></div>
+            </div>
+            <p>Des espaces de travail pour que les chercheurs déposent et échangent des documents, gèrent des agendas communs et éditent des sites Internet de projet sans développement.</p>
+            <div class="stack">Plone · RSS</div>
+          </article>
+
+          <article class="ref">
+            <div class="client">BlueNove</div>
+            <h3>Assembl, intelligence collective</h3>
+            <div class="period">Mars 2017 – septembre 2018 · en régie</div>
+            <div class="figures">
+              <div><strong>60+</strong><span>débats</span></div>
+              <div><strong>16</strong><span>langues</span></div>
+              <div><strong>10 000+</strong><span>participants</span></div>
+            </div>
+            <p>Développement de l'interface de la version 2 sous React, Redux et Apollo, tests Jest et intégration continue, et interventions sur le backend Pyramid/SQLAlchemy et GraphQL.</p>
+            <div class="stack">Pyramid · SQLAlchemy · GraphQL · React</div>
+          </article>
+
+          <article class="ref">
+            <div class="client">Éditions Sortir</div>
+            <h3>Les portails culturels Sortir</h3>
+            <div class="period">Avril 2006 – septembre 2016 · de Plone 2.1 à Pyramid/Substance D</div>
+            <div class="figures">
+              <div><strong>36 240</strong><span>animateurs culturels</span></div>
+              <div><strong>317 000</strong><span>visiteurs uniques / mois</span></div>
+              <div><strong>7</strong><span>villes</span></div>
+            </div>
+            <p>Dépôt d'annonces par les animateurs culturels, validation et publication aux formats papier et web. Modélisé pour l'édition lilloise, le processus a été dupliqué pour six autres villes, puis réécrit en Pyramid/Substance D avec une application mobile React Native.</p>
+            <div class="stack">Plone puis Pyramid / Substance D · React Native · génération PDF</div>
+          </article>
+        </div>
+
+        <p class="ref-more">Ecréall est aussi intervenu pour <strong>Glasseo</strong> (migration de Plone 2.0 vers 4.3), le <strong>CAES du CNRS</strong> (migration de Plone 3.3 vers 4.1 et portage d'un module de gestion d'adhérents vers Pyramid) et <strong>IMIO</strong>, qui gère les intercommunalités wallonnes.</p>
+      </div>
+    </section>
+
+    <section id="communaute">
+      <div class="container">
+        <p class="section-label">Communauté</p>
+        <h2 class="section-title">Expert Plone depuis 2005, contributeur au cœur du projet.</h2>
+        <p class="section-intro">Ecréall est actif dans la communauté Plone depuis ses origines et suit l'historique de ses versions depuis la 2.1. Contributeur significatif à la stabilisation de Plone 4, membre de la Fondation Plone, l'équipe a été présente aux PloneConf, aux EuroPython et aux sprints de Cologne, Vienne, Sorrente et Bristol, et a coécrit les supports de cours français de Plone pour les développeurs et les intégrateurs.</p>
+
+        <div class="two-col">
+          <div>
+            <h4>Ce que nous avons créé</h4>
+            <ul class="check-list">
+              <li>collective.contact.* — annuaire de contacts et d'organisations, recherche, export Excel</li>
+              <li>collective.contentrules.comingsoon et collective.contentrules.talesaction</li>
+              <li>collective.local.sendto et collective.local.userlisting — listes de diffusion et membres locaux d'un dossier</li>
+              <li>collective.portlet.customizablerecent, collective.wfcomment, ecreall.trashcan</li>
+              <li>Products.cooptation, Products.projectmanager (Gantt et PERT), Products.rendezvous</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Ce que nous avons repris et maintenu</h4>
+            <ul class="check-list">
+              <li>collective.phantasy — thème personnalisable par partie de site, à travers le web</li>
+              <li>collective.subtractiveworkflow — workflow de confidentialité en parallèle d'un autre workflow</li>
+              <li>Correctifs sur Solgema.fullcalendar, collective.js.jqueryui, eea.facetednavigation, iw.rejectanonymous, Products.ImageEditor</li>
+              <li>Contributions à Substance D et correctifs à Dokku</li>
+              <li>Deux applications React Native publiées sur les magasins Apple et Google</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section" id="contact">
+      <div class="container">
+        <h2>Reprenons là où nous nous étions arrêtés.</h2>
+        <p>Une démonstration de Nova-Ideo, la reprise d'un portail Plone historique, une migration, une formation&nbsp;: un courriel suffit pour commencer.</p>
+        <a href="mailto:contact@ecreall.com?subject=Demande%20de%20contact%20Ecr%C3%A9all" class="btn-white">Écrire à contact@ecreall.com</a>
+        <a href="tel:+33616859112" class="btn-white-outline">06 16 85 91 12</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="contact-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <strong>Ecréall</strong>, marque de l'EURL Logikascium<br>
+          Michaël Launay<br>
+          35 rue Léon Gambetta<br>
+          59273 Fretin<br>
+          France<br>
+          <a href="tel:+33616859112">+33 (0)6 16 85 91 12</a>
+        </div>
+        <div class="col-md-4">
+          <strong>Informations légales</strong><br>
+          La SARL Ecréall (2005–2023) a été liquidée&nbsp;; la marque et la propriété intellectuelle de ses logiciels ont été reprises en 2024 par l'EURL Logikascium, capital 3&nbsp;000&nbsp;€, SIREN 951 223 882.
+        </div>
+        <div class="col-md-4">
+          <strong>Contact</strong><br>
+          <a href="mailto:contact@ecreall.com">contact@ecreall.com</a><br>
+          Société porteuse&nbsp;: <a href="https://www.logikascium.com">Logikascium</a><br>
+          Sources du site&nbsp;: <a href="https://github.com/michaellaunay/ecreall" rel="noopener">GitHub</a><br>
+          © 2005–2026 Ecréall / Logikascium
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0/js/bootstrap.bundle.min.js"></script>
+  <script>
+  // Surligne l'entrée du menu correspondant à la section visible.
+  (function () {
+    const liens = [...document.querySelectorAll('.navbar .nav-link[href^="#"]')];
+    const cibles = liens.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    if (!('IntersectionObserver' in window) || !cibles.length) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        liens.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    cibles.forEach((c) => obs.observe(c));
+  })();
+  </script>
+</body>
+</html>
